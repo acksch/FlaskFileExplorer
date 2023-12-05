@@ -1,0 +1,22 @@
+/* styles.css */
+
+html, body {
+    height: 100%;
+    background-color: #282a36;  
+}
+
+#button {
+    width: 5%; /* Each form should take equal space */
+    margin-right: 10px; /* Add some margin between forms for spacing */
+    border-radius: 5px;
+    color: #ccc;
+    background-color: #282a36;
+}
+
+input[type="text"] {
+    width: 100%; /* Make the input field occupy all available space */
+    box-sizing: border-box; /* Include padding and border in the width */
+    margin-right: 5px; /* Add some margin for spacing */
+    color: #ccc;
+    background-color: #282a36;  
+}

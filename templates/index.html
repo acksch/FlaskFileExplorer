@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>File Explorer</title>
+
+    <style>
+        /* Style for each entry block */
+        
+        html, body {
+        height: 100%;
+            background-color: #282a36;
+            overflow: hidden;  
+        }
+
+        #button {
+            width: 5%; /* Each form should take equal space */
+            margin-right: 10px; /* Add some margin between forms for spacing */
+            border-radius: 5px;
+            color: #ccc;
+            background-color: #282a36;
+        }
+
+        input[type="text"] {
+            width: 100%; /* Make the input field occupy all available space */
+            box-sizing: border-box; /* Include padding and border in the width */
+            margin-right: 5px; /* Add some margin for spacing */
+            color: #ccc;
+            background-color: #282a36;  
+        }
+        .entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .entry-container {
+            height: calc(100% - 40px); /* Adjust the height for scrollbar (40px estimated) */
+            overflow-y: auto; /* Enable vertical scrollbar */
+            width: 100%;
+            padding-right: 20px; /* Reserve space for vertical scrollbar */
+        }
+        .file {
+            color: blue;
+        }
+
+        .directory {
+            color: green;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 10px;
+            /* justify-content: space-between; */
+            width: 100%; /* Ensure the container occupies all available width */
+        }
+        #process_text_form {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 3; /* Adjust the width for the process text form */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <button id="button" class="dynamic-button" type="button">Back</button>
+        <button id="button" class="dynamic-button" type="button">Forth</button>
+        <button id="button" class="dynamic-button" type="button">Up</button>
+        <form id="process_text_form" action="/process_text" method="post"> 
+            <label style="color: #ccc;" for="user_text">Path:</label>
+            <input id="input" type="text" id="user_text" name="user_text" value="{{ current_dir }}">
+        </form>
+    </div>
+
+    <div class="entry-container">
+        {% for entry in entries %}
+            <div class="entry {{ entry.type }}">
+                <div class="file-type">{{ entry.type }}</div>
+                <a href="/{{ entry.name }}">{{ entry.name }}</a>
+                {% if entry.size == "empty" %}
+                    <span>{{ entry.size }}</span>
+                    <button  class="dynamic-button">Delete</button>
+                {% else %}
+                    <span>{{ entry.size }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    
+<script>
+    const buttons = document.querySelectorAll('.dynamic-button');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Get the text content of the clicked button
+            const buttonText = button.textContent.trim();
+            imput = document.getElementById("input")
+            const filePath = input.value;
+            // Prepare the payload data
+            const payload = {
+                file_path: filePath
+            };
+
+            // Send an AJAX request based on the button text (e.g., "Back" or "Forth")
+            fetch(`/handle_button_click/${buttonText}`, {
+                method: 'POST',
+                headers: {
+                        'Content-Type': 'application/json' // Specify JSON content type
+                    },
+                    body: JSON.stringify(payload) 
+            })
+            .then(response => {
+                // Handle the response as needed
+                console.log(response);
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error:', error);
+            });
+        });
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Markdown Viewer</title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./styles.css">
+
+    <style>
+    </style>
+    <!-- Include Marked.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@3.0.7/marked.min.js"></script>
+</head>
+<body>
+    <div id="markdownContent"></div>
+    
+    <script>
+        // Retrieve the HTML content and image paths passed from Flask
+        const htmlContent = `{{ html_content|safe }}`;
+
+        // Configure Marked.js to render images (inline HTML) and line breaks
+        marked.setOptions({
+            breaks: true,
+            sanitize: false // Allow inline HTML
+        });
+
+        // Wait for the document to be fully loaded before using Marked.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Convert Markdown to HTML using Marked.js
+            const renderedHTML = marked(htmlContent);
+
+            // Display rendered HTML in a div
+            document.getElementById('markdownContent').innerHTML = renderedHTML;
+        });
+    </script>
+</body>
+</html>

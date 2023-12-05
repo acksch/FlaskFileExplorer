@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Content with CodeMirror</title>
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CodeMirror theme (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/dracula.min.css">
+    <style>
+        /* Ensure the HTML and body take up the full viewport */
+
+        html, body {
+            height: 100%;
+            background-color: #282a36;  
+        }
+
+        #button {
+            width: 5%; /* Each form should take equal space */
+            margin-right: 10px; /* Add some margin between forms for spacing */
+            border-radius: 5px;
+            color: #ccc;
+            background-color: #282a36;
+        }
+
+        input[type="text"] {
+            width: 100%; /* Make the input field occupy all available space */
+            box-sizing: border-box; /* Include padding and border in the width */
+            margin-right: 5px; /* Add some margin for spacing */
+            color: #ccc;
+            background-color: #282a36;  
+        }
+
+        /* Ensure the textarea takes up all available space */
+        #codeEditor {
+            width: 100%;
+            height: 100%;
+            /* resize: none;  Disable resizing */
+        }
+        #codeEditor_2 {
+            display: none;
+            /* resize: none;  Disable resizing */
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            color: #282a36;
+            margin: 10px;
+            /* justify-content: space-between; */
+            width: 100%; /* Ensure the container occupies all available width */
+        }
+        #process_text_form {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 3; /* Adjust the width for the process text form */
+        }
+
+
+        /* Style for CodeMirror */
+        .CodeMirror {
+            height: 100%; /* Occupy entire vertical space */
+            width: 100%; /* Occupy entire width of its container */
+            font-size: 16px; /* Adjust font size as needed */
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container">
+        <button id="button" class="dynamic-button" type="button">Save</button>
+        <button id="button" class="dynamic-button" type="button">Load</button>
+        <form id="process_text_form" action="/process_text" method="post"> 
+            <label for="user_text">Path:</label>
+            <input id="input" type="text" id="user_text" name="user_text" value="{{ current_dir }}">
+        </form>
+    </div>
+
+
+
+    <!-- Textarea for CodeMirror -->
+    <textarea id="codeEditor">{{ file_content }}</textarea>
+    <textarea id="codeEditor_2">{{ file_content }}</textarea>
+    <!-- CodeMirror JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- CodeMirror mode (e.g., for Python) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js"></script>
+
+    <script>
+        // Initialize CodeMirror
+        var editor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+            lineNumbers: true, // Show line numbers
+            mode: "python", // Set the mode (language) - change it as needed
+            theme: "dracula" // Set the theme - change it as needed
+        });
+    </script>
+
+    <script>
+        const buttons = document.querySelectorAll('.dynamic-button');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Get the text content of the clicked button
+
+                const buttonText = button.textContent.trim();
+                editor = document.getElementById("codeEditor")
+                editor_2 = document.getElementById("codeEditor_2")
+                imput = document.getElementById("input")
+                console.log(editor)
+                console.log(editor.value)
+                console.log(editor_2.value)
+                const fileContent = editor.value; // Get the content from CodeMirror
+                const filePath = input.value;                
+                //const fileContent = editor.getValue(); // Get the content from CodeMirror
+
+
+                // Prepare the payload data
+                const payload = {
+                    file_content: fileContent, // Set the file content to be sent
+                    file_path: filePath
+                };
+
+                // Send an AJAX request based on the button text (e.g., "Save" or "Load")
+                fetch(`/handle_text_edit_button_click/${buttonText}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Specify JSON content type
+                    },
+                    body: JSON.stringify(payload) // Convert payload to JSON string
+                })
+                .then(response => {
+                    // Handle the response as needed
+                    console.log(response);
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
