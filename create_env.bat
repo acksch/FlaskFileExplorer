@@ -7,6 +7,8 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
+
+
 :: Check if the virtual environment already exists
 IF EXIST venv (
     echo Virtual environment already exists. Activating...
