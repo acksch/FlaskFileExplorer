@@ -7,15 +7,22 @@
         /* Style for each entry block */
         
         html, body {
-        height: 100%;
+            height: 100%;
             background-color: #282a36;
             overflow: hidden;  
         }
 
         #button {
-            width: 5%; /* Each form should take equal space */
-            margin-right: 10px; /* Add some margin between forms for spacing */
+            width: 90%; /* Each form should take equal space */
+            margin-right: 50px; /* Add some margin between forms for spacing */
             border-radius: 5px;
+            color: #ccc;
+            background-color: #282a36;
+        }
+
+        .buttonform {
+            width: 50px;
+            margin-right: 50px;
             color: #ccc;
             background-color: #282a36;
         }
@@ -24,6 +31,7 @@
             width: 100%; /* Make the input field occupy all available space */
             box-sizing: border-box; /* Include padding and border in the width */
             margin-right: 5px; /* Add some margin for spacing */
+            border-radius: 5px;
             color: #ccc;
             background-color: #282a36;  
         }
@@ -66,11 +74,18 @@
 <body>
 
     <div class="container">
-        <button id="button" class="dynamic-button" type="button">Back</button>
-        <button id="button" class="dynamic-button" type="button">Forth</button>
-        <button id="button" class="dynamic-button" type="button">Up</button>
+
+        <form class="buttonfrom" action="/handle_back_button_click" method="POST">
+            <button id="button" type="submit">Back</button>
+        </form>
+        <form class="buttonfrom" action="/handle_forth_button_click" method="POST">
+            <button id="button" type="submit">Forth</button>
+        </form>
+        <form class="buttonfrom" action="/handle_up_button_click" method="POST">
+            <button id="button" type="submit">Up</button>
+        </form>
         <form id="process_text_form" action="/process_text" method="post"> 
-            <label style="color: #ccc;" for="user_text">Path:</label>
+            <label style="color: #ccc; margin-right: 5px;" for="user_text">Path:</label>
             <input id="input" type="text" id="user_text" name="user_text" value="{{ current_dir }}">
         </form>
     </div>

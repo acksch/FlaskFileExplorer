@@ -2,12 +2,13 @@ import os
 import re
 import base64
 import markdown
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, session, make_response
 from pygments import highlight  # Added import for Pygments
 from pygments.lexers import get_lexer_for_filename
 from pygments.formatters import HtmlFormatter
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
 
 def is_directory_empty(directory_path):
@@ -89,6 +90,51 @@ def handle_text_edit_button_click(button_text):
             return f"Error: {str(e)}"
     else:
         return "Invalid request method"
+    
+
+@app.route('/handle_back_button_click', methods=['POST'])
+def handle_back_button_click():
+    index = session['index'] = session['index'] - 1
+    try:
+        current_dir = session['current_dir'] = session['dirList'][index]
+    except:
+        index = session['index'] = session['index'] + 1
+        current_dir = session['current_dir'] = session['dirList'][index]
+    entry_details = _openDir(current_dir)
+    return render_template("index.html", entries=entry_details, current_dir=current_dir)
+
+
+@app.route('/handle_forth_button_click', methods=['POST'])
+def handle_forth_button_click():
+    # TODO if not roundtrip 
+    if session['index'] == -1:
+        # return make_response('', 304)
+        index = session['index']
+        current_dir = session['current_dir'] = session['dirList'][index]
+    else:
+        index = session['index'] = session['index'] + 1
+        try:
+            current_dir = session['current_dir'] = session['dirList'][index]
+        except:
+            index = session['index'] = session['index'] - 1
+            current_dir = session['current_dir'] = session['dirList'][index]
+    entry_details = _openDir(current_dir)
+    return render_template("index.html", entries=entry_details, current_dir=current_dir)
+
+
+@app.route('/handle_up_button_click', methods=['POST'])
+def handle_up_button_click():
+    current_dir = session['current_dir']
+    current_dir = current_dir.rstrip('\\')
+    current_dir = current_dir.split('\\')
+    current_dir = '\\'.join(current_dir[:-1]) + '\\'
+    session['current_dir'] = current_dir
+    session['dirList'].append(current_dir)
+    session['index'] = -1
+    entry_details = _openDir(current_dir)
+    return render_template("index.html", entries=entry_details, current_dir=current_dir)
+
+
 
 @app.route('/handle_button_click/<entry_name>', methods=['POST'])
 def handle_button_click(entry_name):
@@ -107,8 +153,7 @@ def handle_button_click(entry_name):
             path_parts = input_path.split('\\')
 
             # Join all parts except the last one to get the remaining part
-            global current_dir 
-            current_dir = '\\'.join(path_parts[:-1]) + '\\'
+            current_dir = current_dir = '\\'.join(path_parts[:-1]) + '\\'
             #print(f"Button for {entry_name} was clicked.")
             #return f"Button for {entry_name} was clicked."
             entry_details = _openDir(current_dir)
@@ -124,7 +169,6 @@ def process_text():
     user_text = request.form['user_text']
     # Perform actions with the user_text data (e.g., print it)
     print("User input:", user_text)
-    global current_dir 
     current_dir = user_text
     entry_details = _openDir(current_dir)
 
@@ -133,12 +177,15 @@ def process_text():
 
 @app.route("/")
 def index():
-    global current_dir 
+    #global current_dir 
     current_dir = os.getcwd()
-    current_dir = r'C:\Users\bened\Documents\Development\NUS-Docu'
-    current_dir = r'C:\Users\bened\Documents\Development\weva\IT_OT_testbed'
+    #current_dir = r'C:\Users\bened\Documents\Development\NUS-Docu'
+    #current_dir = r'C:\Users\bened\Documents\Development\weva\IT_OT_testbed'
+    session['current_dir'] = current_dir 
+    session['dirList'] = [] 
+    session['index'] = -1
     entry_details = _openDir(current_dir)
-
+    session['dirList'].append(current_dir)
     return render_template("index.html", entries=entry_details, current_dir=current_dir)
 
 def is_markdown_file(file_path):
@@ -150,7 +197,8 @@ def is_image_file(file_path):
     return file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp'))
 
 @app.route("/<path:entry>")
-def file(entry):
+def file(entry):            
+    current_dir = session['current_dir']
     full_path = os.path.join(current_dir, entry)
     if os.path.isfile(full_path):
         try:
@@ -190,8 +238,10 @@ def file(entry):
         
     else:
         entry_details = _openDir(full_path)
+        current_dir = session['current_dir'] = full_path
+        session['dirList'].append(current_dir)
         return render_template("index.html", entries=entry_details, current_dir=current_dir)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=80)
